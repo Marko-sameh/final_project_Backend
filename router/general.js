@@ -98,82 +98,65 @@
 const express = require("express");
 let books = require("./booksdb.js");
 const public_users = express.Router();
+const axios = require("axios");
 
-// ---------- Task 10: Get All Books using Async/Await ----------
+// ---------- Task 10: Get All Books using Axios ----------
 public_users.get("/async/books", async (req, res) => {
   try {
-    // Simulate async operation (DB fetch)
-    const allBooks = await Promise.resolve(books);
+    const response = await axios.get("http://localhost:5000/"); 
     return res.status(200).json({
-      message: "Async-Await: All books fetched successfully",
-      data: allBooks,
+      message: "Axios: All books fetched successfully",
+      data: response.data,
     });
-  } catch (error) {
-    return res.status(500).json({ error: "Error fetching books" });
+  } catch (err) {
+    return res.status(500).json({ error: "Error fetching books via Axios" });
   }
 });
 
-// ---------- Task 11: Get Book by ISBN using Promises ----------
-public_users.get("/async/isbn/:isbn", (req, res) => {
+// ---------- Task 11: Get Book by ISBN using Axios ----------
+public_users.get("/async/isbn/:isbn", async (req, res) => {
   const isbn = req.params.isbn;
-
-  new Promise((resolve, reject) => {
-    if (books[isbn]) resolve(books[isbn]);
-    else reject();
-  })
-    .then((book) => {
-      return res.status(200).json({
-        message: "Promise: Book fetched successfully by ISBN",
-        data: book,
-      });
-    })
-    .catch(() => {
-      return res.status(404).json({ error: "Book not found" });
-    });
-});
-
-// ---------- Task 12: Get Books by Author using Async/Await ----------
-public_users.get("/async/author/:author", async (req, res) => {
-  const author = req.params.author.toLowerCase();
-
   try {
-    const result = Object.values(books).filter(
-      (book) => book.author.toLowerCase() === author
-    );
-
-    if (result.length === 0) {
-      return res.status(404).json({ error: "No books found for this author" });
-    }
-
+    const response = await axios.get(`http://localhost:5000/isbn/${isbn}`);
     return res.status(200).json({
-      message: "Async-Await: Books fetched successfully by author",
-      data: result,
+      message: "Axios: Book fetched successfully by ISBN",
+      data: response.data,
     });
-  } catch {
-    return res.status(500).json({ error: "Error fetching books" });
+  } catch (err) {
+    return res.status(404).json({ error: "Book not found via Axios" });
   }
 });
 
-// ---------- Task 13: Get Books by Title using Promises ----------
-public_users.get("/async/title/:title", (req, res) => {
-  const title = req.params.title.toLowerCase();
-
-  new Promise((resolve, reject) => {
-    const result = Object.values(books).filter(
-      (book) => book.title.toLowerCase() === title
-    );
-
-    result.length ? resolve(result) : reject();
-  })
-    .then((books) => {
-      return res.status(200).json({
-        message: "Promise: Books fetched successfully by title",
-        data: books,
-      });
-    })
-    .catch(() => {
-      return res.status(404).json({ error: "No books found with this title" });
+// ---------- Task 12: Get Books by Author using Axios ----------
+public_users.get("/async/author/:author", async (req, res) => {
+  const author = req.params.author;
+  try {
+    const response = await axios.get(`http://localhost:5000/author/${author}`);
+    return res.status(200).json({
+      message: "Axios: Books fetched successfully by author",
+      data: response.data,
     });
+  } catch (err) {
+    return res
+      .status(404)
+      .json({ error: "No books found for this author via Axios" });
+  }
+});
+
+// ---------- Task 13: Get Books by Title using Axios ----------
+public_users.get("/async/title/:title", async (req, res) => {
+  const title = req.params.title;
+  try {
+    const response = await axios.get(`http://localhost:5000/title/${title}`);
+    return res.status(200).json({
+      message: "Axios: Books fetched successfully by title",
+      data: response.data,
+    });
+  } catch (err) {
+    return res
+      .status(404)
+      .json({ error: "No books found with this title via Axios" });
+  }
 });
 
 module.exports.general = public_users;
